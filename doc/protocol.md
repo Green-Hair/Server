@@ -5,12 +5,12 @@
 * 返回：waitNumber
 
 ## 操作：登录(login)
-* 请求字段：id,psw,captcha
+* 请求字段：id,psw,captcha,waitNumber
 * 返回：name,token
 * token为-1代表登陆失败
 
 ## 操作：注册(enroll)
-* 请求字段：name,psw,captcha
+* 请求字段：name,psw,captcha,waitNumber
 * 返回：id,token
 * token为-1代表注册失败
 
