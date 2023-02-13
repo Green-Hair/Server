@@ -10,7 +10,12 @@ def index():
     return 'Hello World'
 
 @app.route('/post/<str:email>')
-def send_email(email: str):
+def send_email(address: str):
+    """发送邮件
+
+    Args:
+        address (str): 要发送的邮箱地址
+    """
     return 'nothing'
 
 if __name__ == '__main__':
