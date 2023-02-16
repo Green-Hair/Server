@@ -3,6 +3,7 @@
 ### 使用技术
 - ASP.NET Core
 - EntityFramewotk Core
+- DependencyInjection
 
 ### .NET SDK 版本
 ```shell
