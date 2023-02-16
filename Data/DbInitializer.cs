@@ -10,8 +10,6 @@ public static class DbInitializer
 
             var users = new User[]
             {
-                new User { UserName = "Admin", UUID = Guid.NewGuid().ToString(), Email = "admin@test.com", Password = "123456"},
-                new User { UserName = "Test", UUID = Guid.NewGuid().ToString(), Email = "test@test.com", Password = "123456"}
             };
 
             context.Users.AddRange(users);

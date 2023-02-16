@@ -20,7 +20,6 @@ using System.Threading.Tasks;
 		private readonly SignInManager<User> _signInManager;
 		private readonly RoleManager<Role> _roleManager;
 		private IPasswordHasher<User> _passwordHasher;
-		private IConfigurationRoot _configurationRoot;
 		private ILogger<AuthController> _logger;
 
 		public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<Role> roleManager
@@ -31,7 +30,6 @@ using System.Threading.Tasks;
 			_roleManager = roleManager;
 			_logger = logger;
 			_passwordHasher = passwordHasher;
-	
 		}
 
 		[AllowAnonymous]
@@ -47,7 +45,6 @@ using System.Threading.Tasks;
 			{
 				UserName = model.Email,
 				Email = model.Email,
-				UUID = Guid.NewGuid().ToString()
 			};
 			var result = await _userManager.CreateAsync(user, model.Password);
 
@@ -84,12 +81,10 @@ using System.Threading.Tasks;
 						  new Claim(JwtRegisteredClaimNames.Email, user.Email)
 						}.Union(userClaims);
 
-					var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configurationRoot["JwtSecurityToken:Key"]));
+					var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YSTC114514^&%&^%&^1919810%%%"));
 					var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
 
 					var jwtSecurityToken = new JwtSecurityToken(
-					  issuer: _configurationRoot["JwtSecurityToken:Issuer"],
-					  audience: _configurationRoot["JwtSecurityToken:Audience"],
 					  claims: claims,
 					  expires: DateTime.UtcNow.AddMinutes(60),
 					  signingCredentials: signingCredentials
