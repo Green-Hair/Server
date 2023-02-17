@@ -61,24 +61,6 @@ using System.Threading.Tasks;
 			return BadRequest(result.Errors);
 		}
 
-		[HttpPost("login")]
-        public async Task<IActionResult> Login([FromBody] LoginVM creds) {
-			var user = await _userManager.FindByEmailAsync(creds.Email);
-            Microsoft.AspNetCore.Identity.SignInResult result
-                = await _signInManager.PasswordSignInAsync(user,
-                    creds.Password, false, false);
-            if (result.Succeeded) {
-                return Ok();
-            }
-            return Unauthorized();
-        }
-
-        [HttpPost("logout")]
-        public async Task<IActionResult> Logout() {
-            await _signInManager.SignOutAsync();
-            return Ok();
-        }
-
         [HttpPost("token")]
         public async Task<IActionResult> Token([FromBody] LoginVM creds) {
             if (await CheckPassword(creds)) {

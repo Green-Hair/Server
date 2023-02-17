@@ -7,7 +7,18 @@ using System.Text;
 using System.Security.Claims;
 using System.Net;
 
+var  allowSpecificOrigins = "_allowSpecificOrigins";
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: allowSpecificOrigins,
+                      policy  =>
+                      {
+                          policy.AllowAnyOrigin();
+                      });
+});
 
 // Add services to the container.
 
@@ -80,7 +91,9 @@ using (var scope = app.Services.CreateScope())
     DbInitializer.Initialize(context);
 }
 
-app.UseHttpsRedirection();
+app.UseCors(allowSpecificOrigins);
+
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

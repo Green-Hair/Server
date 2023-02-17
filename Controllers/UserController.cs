@@ -1,3 +1,5 @@
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -5,13 +7,14 @@ namespace Server.Controllers;
 
 [ApiController]
 [Route("[controller]/[action]")]
+[Authorize(AuthenticationSchemes = "Identity.Application, Bearer")]
 public class UserController : ControllerBase
 {
 
     private readonly ILogger<UserController> _logger;
-    private ServerContext _context;
+    private SecurityContext _context;
 
-    public UserController(ILogger<UserController> logger, ServerContext context)
+    public UserController(ILogger<UserController> logger, SecurityContext context)
     {
         _logger = logger;
         _context = context;
