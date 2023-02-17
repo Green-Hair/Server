@@ -10,6 +10,7 @@ public static class DbInitializer
 
             var users = new User[]
             {
+                
             };
 
             context.Users.AddRange(users);
