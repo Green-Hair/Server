@@ -21,15 +21,17 @@ using System.Threading.Tasks;
 		private readonly RoleManager<Role> _roleManager;
 		private IPasswordHasher<User> _passwordHasher;
 		private ILogger<AuthController> _logger;
+		private IConfiguration _configuration;
 
 		public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<Role> roleManager
-			, IPasswordHasher<User> passwordHasher, ILogger<AuthController> logger)
+			, IPasswordHasher<User> passwordHasher, ILogger<AuthController> logger, IConfiguration config)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
 			_roleManager = roleManager;
 			_logger = logger;
 			_passwordHasher = passwordHasher;
+			_configuration = config;
 		}
 
 		[AllowAnonymous]
@@ -43,7 +45,7 @@ using System.Threading.Tasks;
 			}
 			var user = new User()
 			{
-				UserName = model.Email,
+				UserName = model.Name,
 				Email = model.Email,
 			};
 			var result = await _userManager.CreateAsync(user, model.Password);
@@ -59,48 +61,53 @@ using System.Threading.Tasks;
 			return BadRequest(result.Errors);
 		}
 
-		[HttpPost]
-		[Route("login")]
-		public async Task<IActionResult> Login([FromBody] LoginVM model)
-		{
-			try
-			{
-				var user = await _userManager.FindByNameAsync(model.Email);
-				if (user == null)
-				{
-					return Unauthorized();
-				}
-				if (_passwordHasher.VerifyHashedPassword(user, user.PasswordHash, model.Password) == PasswordVerificationResult.Success)
-				{
-					var userClaims = await _userManager.GetClaimsAsync(user);
+		[HttpPost("login")]
+        public async Task<IActionResult> Login([FromBody] LoginVM creds) {
+			var user = await _userManager.FindByEmailAsync(creds.Email);
+            Microsoft.AspNetCore.Identity.SignInResult result
+                = await _signInManager.PasswordSignInAsync(user,
+                    creds.Password, false, false);
+            if (result.Succeeded) {
+                return Ok();
+            }
+            return Unauthorized();
+        }
 
-					var claims = new[]
-					{
-						  new Claim(JwtRegisteredClaimNames.Sub, user.UserName),
-						  new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-						  new Claim(JwtRegisteredClaimNames.Email, user.Email)
-						}.Union(userClaims);
+        [HttpPost("logout")]
+        public async Task<IActionResult> Logout() {
+            await _signInManager.SignOutAsync();
+            return Ok();
+        }
 
-					var symmetricSecurityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("YSTC114514^&%&^%&^1919810%%%"));
-					var signingCredentials = new SigningCredentials(symmetricSecurityKey, SecurityAlgorithms.HmacSha256);
+        [HttpPost("token")]
+        public async Task<IActionResult> Token([FromBody] LoginVM creds) {
+            if (await CheckPassword(creds)) {
+                JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
+                byte[] secret = Encoding.ASCII.GetBytes(_configuration["jwtSecret"]);
+                SecurityTokenDescriptor descriptor = new SecurityTokenDescriptor {
+                    Subject = new ClaimsIdentity(new Claim[] {
+                        new Claim(ClaimTypes.Email, creds.Email)
+                    }),
+                    Expires = DateTime.UtcNow.AddHours(24),
+                    SigningCredentials = new SigningCredentials(
+                        new SymmetricSecurityKey(secret),
+                            SecurityAlgorithms.HmacSha256Signature)
+                };
+                SecurityToken token = handler.CreateToken(descriptor);
+                return Ok(new {
+                    success = true,
+                    token = handler.WriteToken(token)
+                });
+            }
+            return Unauthorized();
+        }
 
-					var jwtSecurityToken = new JwtSecurityToken(
-					  claims: claims,
-					  expires: DateTime.UtcNow.AddMinutes(60),
-					  signingCredentials: signingCredentials
-					  );
-					return Ok(new
-					{
-						token = new JwtSecurityTokenHandler().WriteToken(jwtSecurityToken),
-						expiration = jwtSecurityToken.ValidTo
-					});
-				}
-				return Unauthorized();
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError($"error while creating token: {ex}");
-				return StatusCode((int)HttpStatusCode.InternalServerError, "error while creating token");
-			}
-		}
+		private async Task<bool> CheckPassword(LoginVM creds) {
+            var user = await _userManager.FindByEmailAsync(creds.Email);
+            if (user != null) {
+                return (await _signInManager.CheckPasswordSignInAsync(user,
+                    creds.Password, true)).Succeeded;
+            }
+            return false;
+        }
 	}

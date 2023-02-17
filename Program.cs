@@ -2,6 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Identity;
+using System.Text;
+using System.Security.Claims;
+using System.Net;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -24,7 +28,36 @@ builder.Services.AddIdentity<User, Role>(cfg => {
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(o => o.LoginPath = new PathString("/auth/login"))
-                .AddJwtBearer();
+                .AddJwtBearer(opts => {
+                    opts.RequireHttpsMetadata = false;
+                    opts.SaveToken = true;
+                    opts.TokenValidationParameters = new TokenValidationParameters {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(
+                            Encoding.ASCII.GetBytes(builder.Configuration["jwtSecret"])
+                        ),
+                        ValidateAudience = false,
+                        ValidateIssuer = false,
+                    };
+                    opts.Events = new JwtBearerEvents {
+                        OnTokenValidated = async ctx => {
+                            var usrmgr = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
+                            var signinmgr = ctx.HttpContext.RequestServices.GetRequiredService<SignInManager<User>>();
+                            string? username = ctx.Principal?.FindFirst(ClaimTypes.Name)?.Value;
+                            User idUser = await usrmgr.FindByNameAsync(username);
+                            ctx.Principal = await signinmgr.CreateUserPrincipalAsync(idUser);
+                        },
+                    };
+                });
+
+builder.Services.Configure<IdentityOptions>(opts => {
+    opts.Password.RequireLowercase = false;
+    opts.Password.RequiredLength = 6;
+    opts.Password.RequireUppercase = false;
+    opts.Password.RequireNonAlphanumeric = false;
+    opts.Password.RequireDigit = false;
+    opts.User.RequireUniqueEmail = true;
+});
 
 var app = builder.Build();
 
