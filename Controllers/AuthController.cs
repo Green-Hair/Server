@@ -13,7 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 [ApiController]
-[Route("api/auth")]
+[Route("[controller]/[action]")]
 	public class AuthController : ControllerBase
 	{
 		private readonly UserManager<IdentityUser> _userManager;
