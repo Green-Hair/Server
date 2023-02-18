@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using System.Text;
 using System.Security.Claims;
 using System.Net;
+using Microsoft.OpenApi.Models;
 
 var  allowSpecificOrigins = "_allowSpecificOrigins";
 
@@ -25,7 +26,25 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c => {
+    var scheme = new OpenApiSecurityScheme()
+    {
+        Description = "Authorization header. \r\nExample: 'Bearer mytoken'",
+        Reference = new OpenApiReference
+        {
+            Type = ReferenceType.SecurityScheme,
+            Id = "Authorization"
+        },
+        Scheme = "oauth2",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+    };
+    c.AddSecurityDefinition("Authorization", scheme);
+    var requirement = new OpenApiSecurityRequirement();
+    requirement[scheme] = new List<string>();
+    c.AddSecurityRequirement(requirement);
+});
 builder.Services.AddDbContext<ServerContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("ServerContextSQLite")));
 builder.Services.AddDbContext<SecurityContext>(options =>

@@ -64,11 +64,12 @@ using System.Threading.Tasks;
         [HttpPost("token")]
         public async Task<IActionResult> Token([FromBody] LoginVM creds) {
             if (await CheckPassword(creds)) {
+				var user = await _userManager.FindByEmailAsync(creds.Email);
                 JwtSecurityTokenHandler handler = new JwtSecurityTokenHandler();
                 byte[] secret = Encoding.ASCII.GetBytes(_configuration["jwtSecret"]);
                 SecurityTokenDescriptor descriptor = new SecurityTokenDescriptor {
                     Subject = new ClaimsIdentity(new Claim[] {
-                        new Claim(ClaimTypes.Email, creds.Email)
+                        new Claim(ClaimTypes.Name, user.UserName)
                     }),
                     Expires = DateTime.UtcNow.AddHours(24),
                     SigningCredentials = new SigningCredentials(
