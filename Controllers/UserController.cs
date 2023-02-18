@@ -37,10 +37,17 @@ public class UserController : ControllerBase
 
 			if (result != null)
 			{
-				return Ok(result);
+				return Ok(new {
+                    status = 200,
+                    msg = "获取用户信息成功",
+                    result = result
+                });
 			}
             else {
-                return NotFound();
+                return NotFound(new {
+                    status = 404,
+                    msg = "未找到用户信息"
+                });
             }
     }
 }

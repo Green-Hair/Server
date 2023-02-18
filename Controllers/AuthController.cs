@@ -58,13 +58,21 @@ using System.Threading.Tasks;
 
 			if (result.Succeeded)
 			{
-				return Ok(result);
+				return Ok(new {
+					status = 200,
+					msg = "注册成功"
+				});
 			}
 			foreach (var error in result.Errors)
 			{
 				ModelState.AddModelError("error", error.Description);
 			}
-			return BadRequest(result.Errors);
+			return BadRequest(new {
+				status = 400,
+				msg = new[] {
+					result.Errors
+				}
+			});
 		}
 
 		/// <summary>
@@ -90,7 +98,8 @@ using System.Threading.Tasks;
                 };
                 SecurityToken token = handler.CreateToken(descriptor);
                 return Ok(new {
-                    success = true,
+                    status = 200,
+					msg = "获取 Token 成功",
                     token = handler.WriteToken(token)
                 });
             }
