@@ -25,10 +25,7 @@ public class UserController : ControllerBase
     /// <summary>
     /// 获取当前用户的信息
     /// </summary>
-    /// <remarks>
-    /// 
-    /// </reamrk>
-    /// <returns></returns>
+    /// <returns>当前用户的信息</returns>
     [HttpGet]
     public async Task<IActionResult> GetUserInfomation()
     {
