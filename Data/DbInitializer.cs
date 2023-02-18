@@ -7,13 +7,6 @@ public static class DbInitializer
             {
                 return;   // DB has been seeded
             }
-
-            var users = new User[]
-            {
-                
-            };
-
-            context.Users.AddRange(users);
             context.SaveChanges();
         }
     }

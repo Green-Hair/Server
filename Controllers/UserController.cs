@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -21,9 +22,21 @@ public class UserController : ControllerBase
         _context = context;
     }
 
-    [HttpGet(Name = "GetUser")]
-    public async Task<IEnumerable<User>> GetUser()
+    [HttpGet(Name = "GetUserInfomation")]
+    public async Task<IActionResult> GetUserInfomation()
     {
-        return await _context.Users.ToArrayAsync();
+        var user = from u in _context.Users 
+                    where u.UserName == HttpContext.User.Identity.Name 
+                    select u;
+
+        var result = await user.FirstOrDefaultAsync();
+
+			if (result != null)
+			{
+				return Ok(result);
+			}
+            else {
+                return NotFound();
+            }
     }
 }

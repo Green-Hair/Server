@@ -1,8 +1,9 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 public class ServerContext : DbContext
 {
-    public DbSet<User> Users { get; set; }
+    public DbSet<IdentityUser> Users { get; set; }
 
     public ServerContext(DbContextOptions<ServerContext> options)
             : base(options)
@@ -12,6 +13,6 @@ public class ServerContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().ToTable("User");
+            modelBuilder.Entity<IdentityUser>().ToTable("User");
         }
 }

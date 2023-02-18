@@ -52,9 +52,7 @@ builder.Services.AddDbContext<SecurityContext>(options =>
     
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-builder.Services.AddIdentity<User, Role>(cfg => {
-    
-}).AddEntityFrameworkStores<SecurityContext>();
+builder.Services.AddIdentity<IdentityUser, IdentityRole>().AddEntityFrameworkStores<SecurityContext>();
 
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(o => o.LoginPath = new PathString("/auth/login"))
@@ -71,10 +69,10 @@ builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationSc
                     };
                     opts.Events = new JwtBearerEvents {
                         OnTokenValidated = async ctx => {
-                            var usrmgr = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<User>>();
-                            var signinmgr = ctx.HttpContext.RequestServices.GetRequiredService<SignInManager<User>>();
+                            var usrmgr = ctx.HttpContext.RequestServices.GetRequiredService<UserManager<IdentityUser>>();
+                            var signinmgr = ctx.HttpContext.RequestServices.GetRequiredService<SignInManager<IdentityUser>>();
                             string? username = ctx.Principal?.FindFirst(ClaimTypes.Name)?.Value;
-                            User idUser = await usrmgr.FindByNameAsync(username);
+                            var idUser = await usrmgr.FindByNameAsync(username);
                             ctx.Principal = await signinmgr.CreateUserPrincipalAsync(idUser);
                         },
                     };

@@ -16,15 +16,15 @@ using System.Threading.Tasks;
 [Route("api/auth")]
 	public class AuthController : ControllerBase
 	{
-		private readonly UserManager<User> _userManager;
-		private readonly SignInManager<User> _signInManager;
-		private readonly RoleManager<Role> _roleManager;
-		private IPasswordHasher<User> _passwordHasher;
+		private readonly UserManager<IdentityUser> _userManager;
+		private readonly SignInManager<IdentityUser> _signInManager;
+		private readonly RoleManager<IdentityRole> _roleManager;
+		private IPasswordHasher<IdentityUser> _passwordHasher;
 		private ILogger<AuthController> _logger;
 		private IConfiguration _configuration;
 
-		public AuthController(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<Role> roleManager
-			, IPasswordHasher<User> passwordHasher, ILogger<AuthController> logger, IConfiguration config)
+		public AuthController(UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager
+			, IPasswordHasher<IdentityUser> passwordHasher, ILogger<AuthController> logger, IConfiguration config)
 		{
 			_userManager = userManager;
 			_signInManager = signInManager;
@@ -43,7 +43,7 @@ using System.Threading.Tasks;
 			{
 				return BadRequest();
 			}
-			var user = new User()
+			var user = new IdentityUser()
 			{
 				UserName = model.Name,
 				Email = model.Email,
