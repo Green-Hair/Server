@@ -7,6 +7,7 @@ using System.Text;
 using System.Security.Claims;
 using System.Net;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 var  allowSpecificOrigins = "_allowSpecificOrigins";
 
@@ -44,6 +45,27 @@ builder.Services.AddSwaggerGen(c => {
     var requirement = new OpenApiSecurityRequirement();
     requirement[scheme] = new List<string>();
     c.AddSecurityRequirement(requirement);
+
+    c.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "立交桥 Server API",
+        Description = "An ASP.NET Core Web API for 立交桥",
+        Contact = new OpenApiContact
+        {
+            Name = "Github",
+            Url = new Uri("https://github.com/Green-Hair/Server")
+        },
+        License = new OpenApiLicense
+        {
+            Name = "License",
+            Url = new Uri("https://github.com/Green-Hair/Server/blob/main/LICENSE")
+        }
+    });
+
+    // using System.Reflection;
+    var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
 });
 builder.Services.AddDbContext<ServerContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("ServerContextSQLite")));
@@ -95,7 +117,11 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
     app.UseMigrationsEndPoint();
     app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Server API V1");
+    c.RoutePrefix = string.Empty;
+});
 }
 
 using (var scope = app.Services.CreateScope())

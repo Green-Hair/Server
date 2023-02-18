@@ -22,7 +22,14 @@ public class UserController : ControllerBase
         _context = context;
     }
 
-    [HttpGet(Name = "GetUserInfomation")]
+    /// <summary>
+    /// 获取当前用户的信息
+    /// </summary>
+    /// <remarks>
+    /// 
+    /// </reamrk>
+    /// <returns></returns>
+    [HttpGet]
     public async Task<IActionResult> GetUserInfomation()
     {
         var user = from u in _context.Users 

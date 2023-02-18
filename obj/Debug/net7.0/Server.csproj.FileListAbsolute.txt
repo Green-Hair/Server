@@ -83,3 +83,5 @@
 /workspaces/Server/bin/Debug/net7.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
 /workspaces/Server/bin/Debug/net7.0/Microsoft.IdentityModel.Protocols.dll
 /workspaces/Server/bin/Debug/net7.0/Microsoft.IdentityModel.Protocols.OpenIdConnect.dll
+/workspaces/Server/bin/Debug/net7.0/Server.xml
+/workspaces/Server/obj/Debug/net7.0/Server.xml

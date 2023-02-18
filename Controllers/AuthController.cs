@@ -34,9 +34,15 @@ using System.Threading.Tasks;
 			_configuration = config;
 		}
 
+		/// <summary>
+		/// 注册账户
+		/// </summary>
+		/// <param name="name">用户名</param>
+		/// <param name="email">用户邮箱</param>
+		/// <param name="password">密码 ( 最小长度为 6 )</param>
+		/// <returns>是否成功</returns>
 		[AllowAnonymous]
 		[HttpPost]
-		[Route("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterVM model)
 		{
 			if (!ModelState.IsValid)
@@ -61,7 +67,13 @@ using System.Threading.Tasks;
 			return BadRequest(result.Errors);
 		}
 
-        [HttpPost("token")]
+		/// <summary>
+		/// 获取token
+		/// </summary>
+		/// <param name="email">用户邮箱</param>
+		/// <param name="password">密码</param>
+		/// <returns>带有 token 的 json</returns>
+        [HttpPost]
         public async Task<IActionResult> Token([FromBody] LoginVM creds) {
             if (await CheckPassword(creds)) {
 				var user = await _userManager.FindByEmailAsync(creds.Email);
